@@ -1,0 +1,55 @@
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+
+const int trigPin = 6;
+const int echoPin = 7;
+long duration;
+int distance;
+
+// LCD1602 I2C address (0x27 is common, adjust if needed)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup() {
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  Serial.begin(9600);
+  
+  // Initialize LCD
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Distance Sensor");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  // Clear trig pin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2); // Short delay
+
+  // Send trigger pulse
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10); // 10us pulse
+  digitalWrite(trigPin, LOW);
+
+  // Measure echo duration
+  duration = pulseIn(echoPin, HIGH);
+
+  // Calculate distance (speed of sound ~340 m/s or 0.034 cm/us)
+  distance = duration * 0.034 / 2;
+
+  // Display on Serial
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  // Display on LCD
+  lcd.setCursor(0, 0);
+  lcd.print("Distance:      ");
+  lcd.setCursor(0, 1);
+  lcd.print(distance);
+  lcd.print(" cm            ");
+
+  delay(400); // Wait a bit before next reading
+}
